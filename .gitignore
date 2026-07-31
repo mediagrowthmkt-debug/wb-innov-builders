@@ -1,2 +1,7 @@
 .DS_Store
 Thumbs.db
+# add por mg-publicar-site (nao subir lixo)
+_shots/
+*.bak*
+*.ceu.json
+_drive-materiais/
