@@ -7,8 +7,21 @@
   var dataEl = document.getElementById('pf-data');
   var app = document.getElementById('pf-app');
   if (!dataEl || !app) return;
+  // Resolve caminhos absolutos ("/assets/..") do JSON para a base real onde o site
+  // esta montado (raiz OU subpath do GitHub Pages), derivada do proprio <script>.
+  function fixAssetPaths(root){
+    var s = document.querySelector('script[src*="/assets/js/"]'), base = '/';
+    if(s){ var i = s.src.indexOf('/assets/'); if(i>=0) base = s.src.slice(0, i+1); }
+    function walk(o){
+      if(typeof o === 'string'){ return o.indexOf('/assets/')===0 ? base + o.slice(1) : o; }
+      if(Array.isArray(o)){ for(var i=0;i<o.length;i++) o[i]=walk(o[i]); return o; }
+      if(o && typeof o==='object'){ for(var k in o) o[k]=walk(o[k]); return o; }
+      return o;
+    }
+    return walk(root);
+  }
   var DATA;
-  try { DATA = JSON.parse(dataEl.textContent); } catch (e) { return; }
+  try { DATA = fixAssetPaths(JSON.parse(dataEl.textContent)); } catch (e) { return; }
   var CATS = DATA.cats || [];
   var BYCAT = {};
   CATS.forEach(function (c) { BYCAT[c.slug] = c; });

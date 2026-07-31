@@ -2,6 +2,20 @@
 (function(){
   "use strict";
 
+  // Resolve caminhos absolutos ("/assets/..") de dados JSON para a base real onde o
+  // site esta montado (raiz OU subpath do GitHub Pages), derivada do proprio <script>.
+  function fixAssetPaths(root){
+    var s = document.querySelector('script[src*="/assets/js/"]'), base = '/';
+    if(s){ var i = s.src.indexOf('/assets/'); if(i>=0) base = s.src.slice(0, i+1); }
+    function walk(o){
+      if(typeof o === 'string'){ return o.indexOf('/assets/')===0 ? base + o.slice(1) : o; }
+      if(Array.isArray(o)){ for(var i=0;i<o.length;i++) o[i]=walk(o[i]); return o; }
+      if(o && typeof o==='object'){ for(var k in o) o[k]=walk(o[k]); return o; }
+      return o;
+    }
+    return walk(root);
+  }
+
   // ---- mobile nav ----
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.getElementById('primary-nav');
@@ -94,7 +108,7 @@
   // ---- lightbox gallery ----
   var galData = {};
   var gd = document.getElementById('galleries');
-  if(gd){ try{ galData = JSON.parse(gd.textContent); }catch(e){} }
+  if(gd){ try{ galData = fixAssetPaths(JSON.parse(gd.textContent)); }catch(e){} }
 
   if(Object.keys(galData).length){
     var lb = document.createElement('div');
@@ -217,7 +231,7 @@
   var hsEl = document.getElementById('galleries');
   if(hsEl){
     var GAL = {};
-    try{ GAL = JSON.parse(hsEl.textContent); }catch(e){}
+    try{ GAL = fixAssetPaths(JSON.parse(hsEl.textContent)); }catch(e){}
     document.querySelectorAll('.hoverslide .pf-item').forEach(function(item){
       var img = item.querySelector('img'); if(!img) return;
       var photos = (GAL[item.dataset.gallery] || {}).photos;
