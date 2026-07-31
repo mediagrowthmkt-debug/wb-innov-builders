@@ -47,6 +47,22 @@
     });
   }
 
+  // ---- service sub-category filter (mostra/esconde blocos inteiros) ----
+  document.querySelectorAll('[data-subcat-group]').forEach(function(group){
+    var sbtns = group.querySelectorAll('.subcat-btn');
+    var sblocks = group.querySelectorAll('.subcat-block');
+    sbtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        sbtns.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var f = btn.dataset.subfilter;
+        sblocks.forEach(function(bl){
+          bl.style.display = (f === 'all' || bl.dataset.subcat === f) ? '' : 'none';
+        });
+      });
+    });
+  });
+
   // ---- reveal on scroll ----
   var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
