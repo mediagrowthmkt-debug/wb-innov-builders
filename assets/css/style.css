@@ -586,6 +586,7 @@ body.lb-open{overflow:hidden}
   .nav a{padding:15px 8px;font-size:1.05rem;border-bottom:1px solid var(--line-dark)}
   .nav a[aria-current="page"]::after{display:none}
   .nav .btn{margin-top:16px;justify-content:center}
+  .nav .btn--gold{color:#241a06 !important}
   .dropdown{display:none!important}
   .dd-toggle svg{display:none}
   .has-dropdown{display:block}
