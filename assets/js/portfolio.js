@@ -178,7 +178,7 @@
       '<div class="pf2-result-body"><div class="eyebrow">The result</div>' +
       '<h3>What you get</h3><p>' + esc(text) + '</p>' +
       (thumbs ? '<div class="pf2-thumbs">' + thumbs + '</div>' : '') +
-      '<a class="btn btn--gold" href="/contacts/">Get a result like this ' + ARROW + '</a></div></div>';
+      '<a class="btn btn--gold" href="/wb-innov-builders/contacts/">Get a result like this ' + ARROW + '</a></div></div>';
   }
 
   function viewProject(slug, pslug) {
