@@ -323,7 +323,7 @@
     if(lastFocus){ try{ lastFocus.focus(); }catch(_){} }
   }
   /* triggers: every gold/CTA button that pointed at the contact page + explicit opt-in */
-  var triggers = document.querySelectorAll('a.btn[href="/wb-innov-builders/contacts/"], a.btn[href="/wb-innov-builders/contacts"], [data-quote-open]');
+  var triggers = document.querySelectorAll('a.btn[href$="contacts/"], a.btn[href$="contacts"], [data-quote-open]');
   [].forEach.call(triggers, function(t){ t.addEventListener('click', openModal); });
   /* close: backdrop, X, Esc */
   [].forEach.call(modal.querySelectorAll('[data-qmodal-close]'), function(b){ b.addEventListener('click', closeModal); });
