@@ -5,7 +5,7 @@
   // Resolve caminhos absolutos ("/assets/..") de dados JSON para a base real onde o
   // site esta montado (raiz OU subpath do GitHub Pages), derivada do proprio <script>.
   function fixAssetPaths(root){
-    var s = document.querySelector('script[src*="/wb-innov-builders/assets/js/"]'), base = '/';
+    var s = document.querySelector('script[src*="/assets/js/"]'), base = '/';
     if(s){ var i = s.src.indexOf('/assets/'); if(i>=0) base = s.src.slice(0, i+1); }
     function walk(o){
       if(typeof o === 'string'){ return o.indexOf('/assets/')===0 ? base + o.slice(1) : o; }
