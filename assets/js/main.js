@@ -78,10 +78,19 @@
   });
 
   // ---- reveal on scroll ----
+  // threshold:0 (qualquer pixel visivel revela) — elementos MUITO altos (galerias grandes)
+  // nunca atingiam 12% e ficavam invisiveis (pagina em branco). Fallback: revela na hora
+  // tudo que ja esta dentro/perto do viewport, e um safety que revela tudo apos 1.2s.
   var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'}) : null;
-  document.querySelectorAll('.reveal').forEach(function(el){ io ? io.observe(el) : el.classList.add('in'); });
+  }, {threshold:0, rootMargin:'0px 0px -40px 0px'}) : null;
+  var _revEls = document.querySelectorAll('.reveal');
+  _revEls.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if (!io || r.top < (window.innerHeight||900) + 200) { el.classList.add('in'); if(io) io.unobserve(el); }
+    else { io.observe(el); }
+  });
+  setTimeout(function(){ document.querySelectorAll('.reveal:not(.in)').forEach(function(el){ el.classList.add('in'); }); }, 1200);
 
   // ---- before/after slider ----
   document.querySelectorAll('.ba').forEach(function(ba){
@@ -204,9 +213,9 @@
   if(hs){
     var hsItems = [].slice.call(hs.querySelectorAll('.pf-item'));
     var moreBtn = document.getElementById('hs-more'), allBtn = document.getElementById('hs-all');
-    var STEP = Math.max(1, document.querySelectorAll('.filterbar .filter-btn').length - 1);
+    var STEP = Math.max(1, document.querySelectorAll('.filter-btn').length - 1);
     var shownN = STEP;
-    function hsActive(){ var a = document.querySelector('.filterbar .filter-btn.active'); return a ? a.dataset.filter : 'all'; }
+    function hsActive(){ var a = document.querySelector('.filter-btn.active'); return a ? a.dataset.filter : 'all'; }
     function hsApply(){
       var f = hsActive();
       if(f !== 'all'){
@@ -220,7 +229,7 @@
       if(moreBtn) moreBtn.style.display = (shownN < hsItems.length) ? '' : 'none';
       if(allBtn) allBtn.style.display = (shownN >= hsItems.length) ? '' : 'none';
     }
-    document.querySelectorAll('.filterbar .filter-btn').forEach(function(b){
+    document.querySelectorAll('.filter-btn').forEach(function(b){
       b.addEventListener('click', function(){ if(b.dataset.filter==='all'){ shownN = STEP; } hsApply(); });
     });
     if(moreBtn) moreBtn.addEventListener('click', function(){ shownN += STEP; hsApply(); });
@@ -241,7 +250,7 @@
       item.addEventListener('mouseenter', function(){
         // so troca os projetos no hover quando estiver em "All Projects";
         // dentro de uma categoria (ex.: Kitchen Remodels) o efeito nao faz sentido
-        var af = document.querySelector('.filterbar .filter-btn.active');
+        var af = document.querySelector('.filter-btn.active');
         if(af && af.dataset.filter !== 'all') return;
         if(timer) return;
         if(!preloaded){ photos.forEach(function(p){ var x = new Image(); x.src = p.src; }); preloaded = true; }
@@ -494,5 +503,27 @@
     });
     v.addEventListener('volumechange', sync);
     sync();
-  });
+  
+  // ---- mobile: espalha os filtros ENTRE as fotos da galeria (economiza espaco no topo) ----
+  (function distributeFiltersMobile(){
+    if(window.matchMedia('(min-width:701px)').matches) return;
+    var fb=document.querySelector('#explore .filterbar');
+    var mas=document.querySelector('#explore .masonry');
+    if(!fb||!mas) return;
+    var btns=[].slice.call(fb.querySelectorAll('.filter-btn'));
+    var items=[].slice.call(mas.querySelectorAll('.pf-item'));
+    if(btns.length<2||items.length<2) return;
+    fb.style.display='none';
+    var sizes=[2,3,2,3,3], gi=0, ii=0, bi=0;
+    while(bi<btns.length){
+      var sz=sizes[gi%sizes.length]; gi++;
+      var wrap=document.createElement('div'); wrap.className='filter-inline';
+      for(var k=0;k<sz&&bi<btns.length;k++) wrap.appendChild(btns[bi++]);
+      var anchor=items[Math.min(ii,items.length-1)];
+      anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+      ii++;
+    }
+  })();
+
+});
 })();

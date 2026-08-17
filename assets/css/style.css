@@ -207,9 +207,22 @@ select.stepinput{appearance:none;-webkit-appearance:none;cursor:pointer;
 /* ---------- hero ---------- */
 .hero{position:relative;background:var(--black);color:#fff;overflow:hidden;isolation:isolate}
 .hero-media{position:absolute;inset:0;z-index:-2}
-.hero-media img{width:100%;height:100%;object-fit:cover;opacity:.55}
+.hero-media img,.hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8}
+.hero-video--mobile{display:none}
 .hero::after{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(105deg,rgba(13,13,13,.94) 0%,rgba(13,13,13,.72) 46%,rgba(13,13,13,.35) 100%)}
+  background:linear-gradient(95deg,rgba(13,13,13,.95) 0%,rgba(13,13,13,.85) 28%,rgba(13,13,13,.45) 60%,rgba(13,13,13,.05) 100%)}
+@media(max-width:640px){
+  .hero-media{top:auto;height:40%}
+  .hero-media img,.hero-media video{object-position:center 40%;opacity:.92}
+  .hero-video--desktop{display:none}
+  .hero-video--mobile{display:block}
+  .hero::after{top:auto;height:40%;
+    background:linear-gradient(180deg,rgba(13,13,13,1) 0%,rgba(13,13,13,.55) 30%,rgba(13,13,13,.12) 64%,rgba(13,13,13,0) 100%)}
+  .hero-inner{padding-top:clamp(40px,11vw,72px);padding-bottom:clamp(130px,36vw,200px)}
+  .hero-content{max-width:none;text-align:center;margin-inline:auto}
+  .hero-actions{justify-content:center}
+  .hero-badges{visibility:hidden}
+}
 .hero-inner{padding:clamp(70px,11vw,130px) 0 clamp(64px,9vw,110px)}
 .hero-content{max-width:760px}
 .hero h1{color:#fff;margin-bottom:.35em}
@@ -283,7 +296,7 @@ select.stepinput{appearance:none;-webkit-appearance:none;cursor:pointer;
 .subcat-btn:hover{border-color:var(--black);color:var(--text)}
 .subcat-btn.active{background:var(--black);color:#fff;border-color:var(--black)}
 .masonry{columns:3;column-gap:22px}
-.pf-item{break-inside:avoid;margin-bottom:22px;border-radius:var(--radius);overflow:hidden;position:relative;cursor:pointer;background:var(--cream-2)}
+.pf-item{display:block;break-inside:avoid;margin-bottom:22px;border-radius:var(--radius);overflow:hidden;position:relative;cursor:pointer;background:var(--cream-2)}
 .pf-item img{width:100%;transition:transform .6s var(--ease)}
 .pf-item:hover img{transform:scale(1.06)}
 .pf-cap{position:absolute;inset:auto 0 0 0;padding:34px 20px 18px;
@@ -437,13 +450,13 @@ select.stepinput{appearance:none;-webkit-appearance:none;cursor:pointer;
 
 /* ---------- top utility bar ---------- */
 .topbar{background:#000;color:var(--muted-light);font-size:.82rem;border-bottom:1px solid var(--line-dark)}
-.topbar-inner{display:flex;justify-content:space-between;align-items:center;min-height:42px;gap:20px}
-.topbar-left{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
-.topbar-item{display:inline-flex;align-items:center;gap:8px}
+.topbar-inner{display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:center;min-height:42px;gap:20px}
+.topbar-left{display:flex;gap:22px;align-items:center;flex-wrap:nowrap;min-width:0}
+.topbar-item{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 .topbar-item svg{width:15px;height:15px;color:var(--gold)}
 .topbar-item a:hover{color:#fff}
-.topbar-right{display:flex;gap:16px;align-items:center}
-.topbar-badge{display:inline-flex;align-items:center;gap:7px;color:#fff;font-family:"Sora";font-weight:600;font-size:.78rem}
+.topbar-right{display:flex;gap:16px;align-items:center;flex-wrap:nowrap;white-space:nowrap}
+.topbar-badge{display:inline-flex;align-items:center;gap:7px;color:#fff;font-family:"Sora";font-weight:600;font-size:.78rem;white-space:nowrap}
 .topbar-badge svg{width:15px;height:15px;color:var(--gold)}
 .topbar-social{display:flex;gap:6px}
 .topbar-social a{width:28px;height:28px;display:grid;place-items:center;border-radius:6px;transition:.2s}
@@ -842,3 +855,5 @@ body.qmodal-lock{overflow:hidden}
   .qmodal-card{padding:30px 20px 24px;border-radius:18px;max-height:94vh}
   .qmodal-close{top:10px;right:10px}
 }
+
+.filter-inline{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:2px 0 22px;break-inside:avoid}

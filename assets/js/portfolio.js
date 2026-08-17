@@ -242,6 +242,7 @@
       '<div class="pf2-detail-head"><div class="pf2-detail-meta"><span class="pf2-badge dark">' + esc(p.city) + '</span>' +
       '<a class="pf2-tag" href="#/s/' + c.slug + '">' + esc(c.title) + '</a></div>' +
       '<h2>' + esc(p.name) + '</h2><p class="lead">' + esc(p.summary) + '</p></div>' +
+      (p.video ? '<div class="pf2-video" style="max-width:440px;margin:22px auto;"><video style="width:100%;border-radius:16px;box-shadow:var(--shadow);background:#000;display:block" controls playsinline preload="metadata" poster="' + esc(p.video.poster) + '"><source src="' + esc(p.video.src) + '" type="video/mp4"></video></div>' : '') +
       body +
       '<div class="pf2-projnav">' +
       '<a class="pf2-projnav-btn" href="#/s/' + c.slug + '/p/' + prev.slug + '"><span>Previous</span><b>' + esc(prev.name) + '</b></a>' +
