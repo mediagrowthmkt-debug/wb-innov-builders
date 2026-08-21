@@ -65,6 +65,10 @@
   var GROUPS = [];           // photo groups for the current view
   function grp(photos) { GROUPS.push(photos.slice()); return GROUPS.length - 1; }
   function shot(gi, i, src, cls) {
+    if (src && typeof src === 'object' && src.video) {
+      return '<button class="pf2-shot is-video ' + (cls || '') + '" data-g="' + gi + '" data-i="' + i + '" aria-label="Play video">' +
+        '<img src="' + esc(src.poster || '') + '" loading="lazy" alt=""><span class="pf2-play" aria-hidden="true"></span></button>';
+    }
     return '<button class="pf2-shot ' + (cls || '') + '" data-g="' + gi + '" data-i="' + i + '" aria-label="Open photo">' +
       '<img src="' + esc(src) + '" loading="lazy" alt=""><span class="pf2-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></button>';
   }
@@ -75,23 +79,39 @@
     '<button class="pf2-lb-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
     '<button class="pf2-lb-nav pf2-lb-prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>' +
     '<img class="pf2-lb-img" alt="">' +
+    '<video class="pf2-lb-video" controls playsinline preload="metadata" style="display:none"></video>' +
     '<button class="pf2-lb-nav pf2-lb-next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>' +
     '<div class="pf2-lb-counter"></div>';
   document.body.appendChild(lb);
   var lbImg = lb.querySelector('.pf2-lb-img');
+  var lbVid = lb.querySelector('.pf2-lb-video');
   var lbCounter = lb.querySelector('.pf2-lb-counter');
   var lbList = [], lbIdx = 0;
   function lbShow(i) {
     if (!lbList.length) return;
     lbIdx = (i + lbList.length) % lbList.length;
-    lbImg.src = lbList[lbIdx];
+    var item = lbList[lbIdx];
+    if (item && typeof item === 'object' && item.video) {
+      lbImg.style.display = 'none';
+      lbImg.removeAttribute('src');
+      lbVid.style.display = '';
+      lbVid.src = item.video;
+      if (item.poster) lbVid.poster = item.poster;
+      try { lbVid.currentTime = 0; var pr = lbVid.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    } else {
+      try { lbVid.pause(); } catch (e) {}
+      lbVid.removeAttribute('src'); lbVid.load();
+      lbVid.style.display = 'none';
+      lbImg.style.display = '';
+      lbImg.src = (item && item.src) ? item.src : item;
+    }
     lbCounter.textContent = (lbIdx + 1) + ' / ' + lbList.length;
     lb.querySelector('.pf2-lb-prev').style.display = lbList.length > 1 ? '' : 'none';
     lb.querySelector('.pf2-lb-next').style.display = lbList.length > 1 ? '' : 'none';
     lbCounter.style.display = lbList.length > 1 ? '' : 'none';
   }
   function lbOpen(list, start) { lbList = list || []; lb.classList.add('open'); document.body.classList.add('pf2-lb-on'); lbShow(start || 0); }
-  function lbClose() { lb.classList.remove('open'); document.body.classList.remove('pf2-lb-on'); }
+  function lbClose() { lb.classList.remove('open'); document.body.classList.remove('pf2-lb-on'); try { lbVid.pause(); } catch (e) {} }
   lb.querySelector('.pf2-lb-close').addEventListener('click', lbClose);
   lb.querySelector('.pf2-lb-prev').addEventListener('click', function () { lbShow(lbIdx - 1); });
   lb.querySelector('.pf2-lb-next').addEventListener('click', function () { lbShow(lbIdx + 1); });
@@ -205,6 +225,13 @@
     var prev = c.projects[(idx - 1 + c.projects.length) % c.projects.length];
     var next = c.projects[(idx + 1) % c.projects.length];
 
+    // finished-result gallery = the after/final photos + (when present) the project video as a tile
+    function withVideo(photos) {
+      var media = (photos || []).slice();
+      if (p.video) media.push({ video: p.video.src, poster: p.video.poster });
+      return media;
+    }
+
     var body = '';
     if (p.kind === 'process') {
       // steps: before + during, then the finished result as the hero
@@ -220,9 +247,9 @@
       }).join('');
       body = '<div class="pf2-timeline"><div class="pf2-timeline-head"><span class="pf2-step-tag">The process</span>' +
         '<h3>From first measurement to finished result</h3></div>' + stepsHtml + '</div>' +
-        resultBlock(after.photos, after.text);
+        resultBlock(withVideo(after.photos), after.text);
     } else {
-      body = resultBlock(p.final.photos, p.final.text);
+      body = resultBlock(withVideo(p.final.photos), p.final.text);
     }
 
     var stepper = c.projects.length > 1
@@ -242,7 +269,6 @@
       '<div class="pf2-detail-head"><div class="pf2-detail-meta"><span class="pf2-badge dark">' + esc(p.city) + '</span>' +
       '<a class="pf2-tag" href="#/s/' + c.slug + '">' + esc(c.title) + '</a></div>' +
       '<h2>' + esc(p.name) + '</h2><p class="lead">' + esc(p.summary) + '</p></div>' +
-      (p.video ? '<div class="pf2-video" style="max-width:440px;margin:22px auto;"><video style="width:100%;border-radius:16px;box-shadow:var(--shadow);background:#000;display:block" controls playsinline preload="metadata" poster="' + esc(p.video.poster) + '"><source src="' + esc(p.video.src) + '" type="video/mp4"></video></div>' : '') +
       body +
       '<div class="pf2-projnav">' +
       '<a class="pf2-projnav-btn" href="#/s/' + c.slug + '/p/' + prev.slug + '"><span>Previous</span><b>' + esc(prev.name) + '</b></a>' +
