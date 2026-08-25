@@ -1,0 +1,37 @@
+name: Deploy to Hostinger (FTP)
+
+# Todo push no main sobe o site pro Hostinger (public_html) via FTP.
+# Credenciais ficam nos Secrets do repo (FTP_HOST / FTP_USER / FTP_PASS).
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTP Deploy -> Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftp
+          port: 21
+          # a conta FTP ja tem raiz em public_html
+          local-dir: ./
+          server-dir: ./
+          # nao apaga nada que nao seja do repo (LPs /kitchen /lp ... e config.php ficam intactos)
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.gitignore
+            **/README.md
+            **/.DS_Store
+            api/config.php
+            ghl-config.php
