@@ -8,6 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // ---- credenciais (NUNCA no repo): env OU api/config.php OU 1 nivel acima do public_html
 $GHL_TOKEN = getenv('GHL_TOKEN') ?: '';
 $GHL_LOCATION = getenv('GHL_LOCATION') ?: '';
+$GHL_PIPELINE = getenv('GHL_PIPELINE') ?: '';
+$GHL_STAGE = getenv('GHL_STAGE') ?: '';
 if (!$GHL_TOKEN) {
   foreach ([__DIR__.'/config.php', dirname($_SERVER['DOCUMENT_ROOT']).'/ghl-config.php'] as $cf) {
     if (is_file($cf)) { require $cf; break; }
@@ -92,6 +94,19 @@ if ($code >= 200 && $code < 300 && $cid) {
         . "SMS consent: " . ($consent ? "yes" : "no") . "\n"
         . ($page ? "Page: $page\n" : "");
   ghl_call('https://services.leadconnectorhq.com/contacts/'.$cid.'/notes', $GHL_TOKEN, ['body'=>$note]);
+  // cria a oportunidade no pipeline (Sales Pipeline 2026 / New Lead) se configurado
+  if (!empty($GHL_PIPELINE) && !empty($GHL_STAGE)) {
+    $oppName = ($name !== '' ? $name : 'Website Lead') . ($service !== '' ? ' - '.$service : '');
+    ghl_call('https://services.leadconnectorhq.com/opportunities/', $GHL_TOKEN, [
+      'pipelineId'      => $GHL_PIPELINE,
+      'locationId'      => $GHL_LOCATION,
+      'pipelineStageId' => $GHL_STAGE,
+      'name'            => $oppName,
+      'status'          => 'open',
+      'contactId'       => $cid,
+      'source'          => 'website',
+    ]);
+  }
   echo json_encode(['ok'=>true]); exit;
 }
 
