@@ -5,3 +5,5 @@ _shots/
 *.bak*
 *.ceu.json
 _drive-materiais/
+api/config.php
+ghl-config.php

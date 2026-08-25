@@ -1,0 +1,4 @@
+# Innov Builders — GERADO por build.py
+<Files "config.php">
+  Require all denied
+</Files>

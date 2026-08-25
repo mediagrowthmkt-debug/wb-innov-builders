@@ -324,10 +324,23 @@
     form.addEventListener('submit', function(e){
       e.preventDefault();
       if(!valid(cur)) return;
-      var bar = form.querySelector('.stepbar'); if(bar) bar.style.display = 'none';
-      panels.forEach(function(p){ p.hidden = true; });
-      var done = form.querySelector('.stepdone');
-      if(done) done.hidden = false;
+      var submitBtn = form.querySelector('[type=submit]');
+      if(submitBtn){ submitBtn.disabled = true; }
+      function showDone(){
+        var bar = form.querySelector('.stepbar'); if(bar) bar.style.display = 'none';
+        panels.forEach(function(p){ p.hidden = true; });
+        var done = form.querySelector('.stepdone'); if(done) done.hidden = false;
+      }
+      function fail(){
+        if(submitBtn){ submitBtn.disabled = false; }
+        alert('Sorry, we could not send your request right now. Please call us at (978) 878-7977 or try again.');
+      }
+      var fd = new FormData(form);
+      fd.append('page', location.href);
+      fetch('/api/lead.php', { method:'POST', body: fd })
+        .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+        .then(function(res){ if(res && res.ok){ showDone(); } else { fail(); } })
+        .catch(fail);
     });
     form.stepReset = function(){
       var done = form.querySelector('.stepdone');
