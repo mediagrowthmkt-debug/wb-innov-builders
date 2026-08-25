@@ -1,0 +1,93 @@
+# Innov Builders — GERADO por build.py. Nao editar a mao (o rebuild sobrescreve).
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # www -> nao-www (canonical)
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+  # forcar HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ===== 301 migracao WordPress -> site novo (destino FINAL, sem cadeia) =====
+RedirectMatch 301 ^/about-us-modelo/?$ /about-us/
+RedirectMatch 301 ^/addition-lynnfield-ma/?$ /home-addition-remodeling/
+RedirectMatch 301 ^/author/clailton/?$ /about-us/
+RedirectMatch 301 ^/author/innov_adm/?$ /about-us/
+RedirectMatch 301 ^/author/karolinebrito92/?$ /about-us/
+RedirectMatch 301 ^/author/theoluiz/?$ /about-us/
+RedirectMatch 301 ^/built-in-cabinets/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/built-in-cabinets-ads/?$ /
+RedirectMatch 301 ^/built-in-construction/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/built-in-installation-harvard-ma/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/built-in-installation-newton-ma/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/built-in-medford-ma/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/built-in-newtonma/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/cabinet-installation-jamaica-plain-ma/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/cabinets-installation/?$ /cabinets-built-ins/
+RedirectMatch 301 ^/category/blog/?$ /blog/
+RedirectMatch 301 ^/category/portfolio/?$ /portfolio/
+RedirectMatch 301 ^/commercial-room-remodeling-malden-ma/?$ /full-service-renovation/
+RedirectMatch 301 ^/deck-construction-nashua-nh/?$ /deck-porch/
+RedirectMatch 301 ^/deck-construction-reading-ma/?$ /deck-porch/
+RedirectMatch 301 ^/deck-meta-18-08/?$ /
+RedirectMatch 301 ^/deck-remodeling/?$ /deck-porch/
+RedirectMatch 301 ^/deck-remodeling-ads/?$ /
+RedirectMatch 301 ^/deck-sunroom-addition-andover-ma/?$ /deck-porch/
+RedirectMatch 301 ^/deck-sunroom-addition-andover-ma-2/?$ /deck-porch/
+RedirectMatch 301 ^/drop-celing-meta-18-08/?$ /
+RedirectMatch 301 ^/exterior-finish-carpentry/?$ /carpentry/
+RedirectMatch 301 ^/fence-installation-andover-ma/?$ /carpentry/
+RedirectMatch 301 ^/fence-installation-medford-ma/?$ /carpentry/
+RedirectMatch 301 ^/finish-stair-meta-18-08/?$ /
+RedirectMatch 301 ^/finish-stairs/?$ /carpentry/
+RedirectMatch 301 ^/finish-trim/?$ /carpentry/
+RedirectMatch 301 ^/framing-wood-metal/?$ /carpentry/
+RedirectMatch 301 ^/high-quality-interior-finish-newton-ma/?$ /carpentry/
+RedirectMatch 301 ^/home-addition-remodeling-ads/?$ /
+RedirectMatch 301 ^/home-addition-remodeling-meta/?$ /
+RedirectMatch 301 ^/home-remodeling/?$ /full-service-renovation/
+RedirectMatch 301 ^/hometeste/?$ /
+RedirectMatch 301 ^/interior-finish-carpentry/?$ /carpentry/
+RedirectMatch 301 ^/kitchen-remodeling-ads/?$ /
+RedirectMatch 301 ^/kitchen-remodeling-beverly-ma/?$ /kitchen-remodeling/
+RedirectMatch 301 ^/kitchen-remodeling-billerica-ma/?$ /kitchen-remodeling/
+RedirectMatch 301 ^/kitchen-remodeling-meta-18-08/?$ /
+RedirectMatch 301 ^/kitchen-renovation-revere-ma/?$ /kitchen-remodeling/
+RedirectMatch 301 ^/outdoor-stair-installation-ipswich-ma/?$ /stair-remodeling/
+RedirectMatch 301 ^/pagina-inicial-trafego/?$ /
+RedirectMatch 301 ^/painting-project-worcester-ma/?$ /services/
+RedirectMatch 301 ^/pivot-door-installation-medford-ma/?$ /carpentry/
+RedirectMatch 301 ^/porch-construction-andover-ma/?$ /deck-porch/
+RedirectMatch 301 ^/porch-construction-waltham-ma/?$ /deck-porch/
+RedirectMatch 301 ^/porch-remodeling/?$ /deck-porch/
+RedirectMatch 301 ^/remodeling-trafego/?$ /
+RedirectMatch 301 ^/salem-nh-deck/?$ /deck-porch/
+RedirectMatch 301 ^/siding/?$ /carpentry/
+RedirectMatch 301 ^/siding-installation-hanover-ma/?$ /carpentry/
+RedirectMatch 301 ^/stair-and-door-renovation-brookline-ma/?$ /stair-remodeling/
+RedirectMatch 301 ^/stair-installation-danvers-ma/?$ /stair-remodeling/
+RedirectMatch 301 ^/stair-installation-wareham-ma/?$ /stair-remodeling/
+RedirectMatch 301 ^/sunroom-meta-18-08/?$ /
+RedirectMatch 301 ^/tag/backyard-renovation/?$ /blog/
+RedirectMatch 301 ^/tag/deck-remodeling/?$ /blog/
+RedirectMatch 301 ^/tag/expand-house-space/?$ /blog/
+RedirectMatch 301 ^/tag/home-addition/?$ /blog/
+RedirectMatch 301 ^/tag/home-remodeling/?$ /blog/
+RedirectMatch 301 ^/tag/home-value/?$ /blog/
+RedirectMatch 301 ^/tag/innov-builders-usa/?$ /blog/
+RedirectMatch 301 ^/tag/itchen-remodeling/?$ /blog/
+RedirectMatch 301 ^/tag/kitchen-renovation/?$ /blog/
+RedirectMatch 301 ^/tag/kitchen-trends-2025/?$ /blog/
+RedirectMatch 301 ^/tag/modern-kitchen-ideas/?$ /blog/
+RedirectMatch 301 ^/tag/outdoor-living-ideas/?$ /blog/
+RedirectMatch 301 ^/tag/patio-design/?$ /blog/
+RedirectMatch 301 ^/top-general-contractors-in-massachusetts/?$ /about-us/
+RedirectMatch 301 ^/stair-renovation-doverma-stair /stair-remodeling/
+
+# 404 real e amigavel
+ErrorDocument 404 /404.html
+
