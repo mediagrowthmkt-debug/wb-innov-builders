@@ -10,6 +10,8 @@ $GHL_TOKEN = getenv('GHL_TOKEN') ?: '';
 $GHL_LOCATION = getenv('GHL_LOCATION') ?: '';
 $GHL_PIPELINE = getenv('GHL_PIPELINE') ?: '';
 $GHL_STAGE = getenv('GHL_STAGE') ?: '';
+$GHL_CF_BRIEF_CONTACT = getenv('GHL_CF_BRIEF_CONTACT') ?: '';
+$GHL_CF_BRIEF_OPP = getenv('GHL_CF_BRIEF_OPP') ?: '';
 if (!$GHL_TOKEN) {
   foreach ([__DIR__.'/config.php', dirname($_SERVER['DOCUMENT_ROOT']).'/ghl-config.php'] as $cf) {
     if (is_file($cf)) { require $cf; break; }
@@ -46,6 +48,15 @@ if (strpos($name, ' ') !== false) { $p = explode(' ', $name, 2); $first = trim($
 $tags = ['Website Lead'];
 if ($service !== '') $tags[] = 'Service: '.$service;
 
+// resumo com TUDO que a pessoa preencheu -> vai pro campo "Brief Description of the Project"
+$brief = "";
+if ($service !== '') $brief .= "Service: $service\n";
+if ($zip !== '')     $brief .= "Zip: $zip\n";
+if ($message !== '') $brief .= "Message: $message\n";
+$brief .= "SMS consent: ".($consent ? "yes" : "no")."\n";
+if ($page !== '')    $brief .= "Page: $page\n";
+$brief = trim($brief);
+
 $contact = [
   'locationId' => $GHL_LOCATION,
   'firstName'  => $first,
@@ -59,6 +70,9 @@ $contact = [
 ];
 foreach (['firstName','lastName','name','email','phone','postalCode'] as $k) {
   if ($contact[$k] === '') unset($contact[$k]);
+}
+if ($GHL_CF_BRIEF_CONTACT !== '') {
+  $contact['customFields'] = [['id'=>$GHL_CF_BRIEF_CONTACT, 'value'=>$brief]];
 }
 
 function ghl_call($url, $token, $body) {
@@ -97,7 +111,7 @@ if ($code >= 200 && $code < 300 && $cid) {
   // cria a oportunidade no pipeline (Sales Pipeline 2026 / New Lead) se configurado
   if (!empty($GHL_PIPELINE) && !empty($GHL_STAGE)) {
     $oppName = ($name !== '' ? $name : 'Website Lead') . ($service !== '' ? ' - '.$service : '');
-    ghl_call('https://services.leadconnectorhq.com/opportunities/', $GHL_TOKEN, [
+    $opp = [
       'pipelineId'      => $GHL_PIPELINE,
       'locationId'      => $GHL_LOCATION,
       'pipelineStageId' => $GHL_STAGE,
@@ -105,7 +119,9 @@ if ($code >= 200 && $code < 300 && $cid) {
       'status'          => 'open',
       'contactId'       => $cid,
       'source'          => 'website',
-    ]);
+    ];
+    if ($GHL_CF_BRIEF_OPP !== '') $opp['customFields'] = [['id'=>$GHL_CF_BRIEF_OPP, 'value'=>$brief]];
+    ghl_call('https://services.leadconnectorhq.com/opportunities/', $GHL_TOKEN, $opp);
   }
   echo json_encode(['ok'=>true]); exit;
 }
