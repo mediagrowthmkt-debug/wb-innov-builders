@@ -1,6 +1,6 @@
 # Innov Builders — GERADO por build.py. Nao editar a mao (o rebuild sobrescreve).
 Options -Indexes
-DirectoryIndex index.html
+DirectoryIndex index.html index.php default.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
