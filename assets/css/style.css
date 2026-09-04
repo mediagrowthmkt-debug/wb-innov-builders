@@ -390,22 +390,20 @@ select.stepinput{appearance:none;-webkit-appearance:none;cursor:pointer;
 .cta-band p{color:#3a2c0a;margin:.5em 0 0;font-size:1.05rem}
 
 /* ---------- CTAs inline no meio do artigo (lead capture enquanto le) ---------- */
-.inline-cta{margin:2.4em 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#ffffff,var(--cream));border:1px solid var(--gold);box-shadow:0 8px 26px rgba(217,169,47,.18);display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.inline-cta--accent{background:var(--gold-grad);border-color:transparent}
-.inline-cta--accent .inline-cta-txt strong{color:#241a06}
-.inline-cta--accent .inline-cta-txt span{color:#3a2c0a}
-.inline-cta-txt{display:flex;flex-direction:column;gap:3px;flex:1 1 240px;min-width:200px}
-.inline-cta-txt strong{font-family:'Sora',sans-serif;font-weight:700;font-size:1.2rem;line-height:1.25;color:var(--ink)}
-.inline-cta-txt span{font-size:.95rem;color:#5c5648;line-height:1.4}
-.inline-cta .btn{white-space:nowrap;flex:0 0 auto}
-.inline-leadform{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1 1 340px}
-.inline-leadform input[name="_hp"]{position:absolute!important;left:-9999px;width:1px;height:1px;min-width:0;padding:0;margin:0;border:0;opacity:0}
-.inline-leadform input{padding:12px 14px;border:1px solid #d9d3c7;border-radius:10px;font-size:.95rem;flex:1 1 130px;min-width:120px;background:#fff;font-family:inherit}
-.inline-leadform input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,169,47,.22)}
-.inline-leadform button{white-space:nowrap;flex:1 1 100%}
-.inline-leadform-done{flex:1 1 100%;margin:2px 0 0;font-weight:600;color:#1c7a3d}
-@media(min-width:620px){.inline-leadform button{flex:0 0 auto}}
-@media(max-width:620px){.inline-cta{flex-direction:column;align-items:stretch;text-align:left}}
+/* variante FORM: card com headline + o FORMULARIO PADRAO do site (.stepform) empilhado */
+.inline-cta--form{margin:2.6em 0;padding:24px;border-radius:18px;background:linear-gradient(135deg,#ffffff,var(--cream));border:1px solid var(--gold);box-shadow:0 10px 30px rgba(217,169,47,.16);max-width:100%;box-sizing:border-box;overflow:hidden}
+.inline-cta-head{margin-bottom:16px}
+.inline-cta-head strong{display:block;font-family:'Sora',sans-serif;font-weight:700;font-size:1.35rem;line-height:1.2;color:var(--ink)}
+.inline-cta-head span{display:block;margin-top:4px;font-size:.98rem;color:#5c5648;line-height:1.45}
+.inline-cta--form .stepform{margin:0;max-width:100%}
+.inline-cta--form .stepinput{max-width:100%;box-sizing:border-box}
+/* variante ACCENT: banner dourado com texto + botao que abre o modal (mesmo form padrao) */
+.inline-cta--accent{margin:2.6em 0;padding:22px 24px;border-radius:18px;background:var(--gold-grad);box-shadow:0 10px 30px rgba(217,169,47,.2);display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;max-width:100%;box-sizing:border-box}
+.inline-cta--accent .inline-cta-txt{display:flex;flex-direction:column;gap:3px;flex:1 1 220px;min-width:0}
+.inline-cta--accent .inline-cta-txt strong{font-family:'Sora',sans-serif;font-weight:700;font-size:1.25rem;line-height:1.22;color:#241a06}
+.inline-cta--accent .inline-cta-txt span{font-size:.96rem;color:#3a2c0a;line-height:1.4}
+.inline-cta--accent .btn{white-space:nowrap;flex:0 0 auto}
+@media(max-width:560px){.inline-cta--accent{flex-direction:column;align-items:stretch;text-align:left}.inline-cta--accent .btn{width:100%;text-align:center}.inline-cta--form{padding:18px}}
 
 /* ---------- contact / form ---------- */
 .contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(30px,5vw,60px);align-items:start}

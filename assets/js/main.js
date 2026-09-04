@@ -352,34 +352,6 @@
   });
 })();
 
-/* Mini-form inline no meio do artigo (data-leadform) -> mesmo endpoint /api/lead.php */
-(function(){
-  document.querySelectorAll('form[data-leadform]').forEach(function(form){
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var hp = form.querySelector('input[name=_hp]');
-      if(hp && hp.value) return; // honeypot: bot preencheu
-      var req = [].slice.call(form.querySelectorAll('input[required]'));
-      for(var k=0;k<req.length;k++){ if(!req[k].checkValidity()){ req[k].reportValidity(); return; } }
-      var btn = form.querySelector('[type=submit]'); if(btn) btn.disabled = true;
-      var fd = new FormData(form);
-      fd.append('page', location.href);
-      fd.append('source', 'inline-cta');
-      function fail(){ if(btn) btn.disabled = false; alert('Sorry, we could not send your request right now. Please call us at (978) 878-7977 or try again.'); }
-      fetch('/api/lead.php', { method:'POST', body: fd })
-        .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
-        .then(function(res){
-          if(res && res.ok){
-            var done = form.querySelector('.inline-leadform-done');
-            [].forEach.call(form.querySelectorAll('input,button'), function(el){ el.style.display = 'none'; });
-            if(done) done.hidden = false;
-          } else { fail(); }
-        })
-        .catch(fail);
-    });
-  });
-})();
-
 /* Free Estimate modal — any .btn linking to /contacts/ opens the quote popup */
 (function(){
   var modal = document.getElementById('quote-modal');

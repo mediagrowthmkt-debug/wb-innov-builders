@@ -35,6 +35,8 @@ $service = trim($in['service'] ?? '');
 $zip     = trim($in['zip']     ?? '');
 $message = trim($in['message'] ?? '');
 $page    = trim($in['page']    ?? '');
+$source  = trim($in['source']  ?? '');
+$lead_source = $source !== '' ? $source : 'website';
 $consent = !empty($in['sms_consent']);
 
 if ($email === '' && $phone === '') {
@@ -47,9 +49,11 @@ if (strpos($name, ' ') !== false) { $p = explode(' ', $name, 2); $first = trim($
 
 $tags = ['Website Lead'];
 if ($service !== '') $tags[] = 'Service: '.$service;
+if ($source !== '')  $tags[] = 'Source: '.$source;
 
 // resumo com TUDO que a pessoa preencheu -> vai pro campo "Brief Description of the Project"
 $brief = "";
+if ($source !== '')  $brief .= "Source: $source\n";
 if ($service !== '') $brief .= "Service: $service\n";
 if ($zip !== '')     $brief .= "Zip: $zip\n";
 if ($message !== '') $brief .= "Message: $message\n";
@@ -64,7 +68,7 @@ $contact = [
   'name'       => $name,
   'email'      => $email,
   'phone'      => $phone,
-  'source'     => 'website',
+  'source'     => $lead_source,
   'tags'       => $tags,
   'postalCode' => $zip,
 ];
@@ -102,6 +106,7 @@ $cid = $data['contact']['id'] ?? ($data['id'] ?? null);
 if ($code >= 200 && $code < 300 && $cid) {
   // nota com tudo que o cliente preencheu
   $note = "Website form - No-Cost Estimate\n"
+        . ($source  ? "Source: $source\n"   : "")
         . ($service ? "Service: $service\n" : "")
         . ($zip     ? "Zip: $zip\n"         : "")
         . ($message ? "Message: $message\n" : "")
@@ -118,7 +123,7 @@ if ($code >= 200 && $code < 300 && $cid) {
       'name'            => $oppName,
       'status'          => 'open',
       'contactId'       => $cid,
-      'source'          => 'website',
+      'source'          => $lead_source,
     ];
     if ($GHL_CF_BRIEF_OPP !== '') $opp['customFields'] = [['id'=>$GHL_CF_BRIEF_OPP, 'value'=>$brief]];
     ghl_call('https://services.leadconnectorhq.com/opportunities/', $GHL_TOKEN, $opp);
