@@ -389,6 +389,24 @@ select.stepinput{appearance:none;-webkit-appearance:none;cursor:pointer;
 .cta-band h2{color:#241a06;margin:0}
 .cta-band p{color:#3a2c0a;margin:.5em 0 0;font-size:1.05rem}
 
+/* ---------- CTAs inline no meio do artigo (lead capture enquanto le) ---------- */
+.inline-cta{margin:2.4em 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#ffffff,var(--cream));border:1px solid var(--gold);box-shadow:0 8px 26px rgba(217,169,47,.18);display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.inline-cta--accent{background:var(--gold-grad);border-color:transparent}
+.inline-cta--accent .inline-cta-txt strong{color:#241a06}
+.inline-cta--accent .inline-cta-txt span{color:#3a2c0a}
+.inline-cta-txt{display:flex;flex-direction:column;gap:3px;flex:1 1 240px;min-width:200px}
+.inline-cta-txt strong{font-family:'Sora',sans-serif;font-weight:700;font-size:1.2rem;line-height:1.25;color:var(--ink)}
+.inline-cta-txt span{font-size:.95rem;color:#5c5648;line-height:1.4}
+.inline-cta .btn{white-space:nowrap;flex:0 0 auto}
+.inline-leadform{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1 1 340px}
+.inline-leadform input[name="_hp"]{position:absolute!important;left:-9999px;width:1px;height:1px;min-width:0;padding:0;margin:0;border:0;opacity:0}
+.inline-leadform input{padding:12px 14px;border:1px solid #d9d3c7;border-radius:10px;font-size:.95rem;flex:1 1 130px;min-width:120px;background:#fff;font-family:inherit}
+.inline-leadform input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,169,47,.22)}
+.inline-leadform button{white-space:nowrap;flex:1 1 100%}
+.inline-leadform-done{flex:1 1 100%;margin:2px 0 0;font-weight:600;color:#1c7a3d}
+@media(min-width:620px){.inline-leadform button{flex:0 0 auto}}
+@media(max-width:620px){.inline-cta{flex-direction:column;align-items:stretch;text-align:left}}
+
 /* ---------- contact / form ---------- */
 .contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(30px,5vw,60px);align-items:start}
 .info-card{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
