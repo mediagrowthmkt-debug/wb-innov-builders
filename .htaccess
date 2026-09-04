@@ -14,7 +14,7 @@ DirectoryIndex index.html index.php default.php
 
 # ===== 301 migracao WordPress -> site novo (destino FINAL, sem cadeia) =====
 RedirectMatch 301 ^/about-us-modelo/?$ /about-us/
-RedirectMatch 301 ^/addition-lynnfield-ma/?$ /home-addition-remodeling/
+RedirectMatch 301 ^/addition-lynnfield-ma/?$ /home-additions-lynnfield-ma/
 RedirectMatch 301 ^/author/clailton/?$ /about-us/
 RedirectMatch 301 ^/author/innov_adm/?$ /about-us/
 RedirectMatch 301 ^/author/karolinebrito92/?$ /about-us/
@@ -90,4 +90,35 @@ RedirectMatch 301 ^/stair-renovation-doverma-stair /stair-remodeling/
 
 # 404 real e amigavel
 ErrorDocument 404 /404.html
+
+# ===== Cache & compressao (Core Web Vitals) =====
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Assets versionados por ?v= (fingerprint) -> cache imutavel de 1 ano
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType application/x-javascript "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  # HTML nao cacheia forte (revalida sempre)
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+  # Assets com fingerprint ?v= sao imutaveis
+  <FilesMatch "\.(css|js|webp|png|jpe?g|svg|ico|mp4|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+# LiteSpeed/Apache: compressao brotli/gzip para texto
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/x-javascript application/json image/svg+xml
+</IfModule>
 
