@@ -539,4 +539,31 @@
   })();
 
 });
+
+/* ---- Hero videos: carrega DEPOIS do load para nao roubar o LCP do poster ----
+   O poster (preload + fetchpriority=high) e o elemento LCP; o video entra logo apos. */
+(function(){
+  function startHeroVideos(){
+    var vids = document.querySelectorAll('.hero-video');
+    for(var i=0;i<vids.length;i++){
+      (function(v){
+        // so carrega o video visivel (o outro esta display:none via media query) — evita baixar os dois
+        if(getComputedStyle(v).display === 'none') return;
+        var s = v.querySelector('source[data-src]');
+        if(s && !v.dataset.loaded){
+          s.src = s.getAttribute('data-src');
+          v.dataset.loaded = '1';
+          try{ v.load(); }catch(e){}
+          var p = v.play(); if(p && p.catch) p.catch(function(){});
+        }
+      })(vids[i]);
+    }
+  }
+  function schedule(){
+    if('requestIdleCallback' in window){ requestIdleCallback(startHeroVideos, {timeout:1500}); }
+    else { setTimeout(startHeroVideos, 200); }
+  }
+  if(document.readyState === 'complete'){ schedule(); }
+  else { window.addEventListener('load', schedule); }
+})();
 })();
