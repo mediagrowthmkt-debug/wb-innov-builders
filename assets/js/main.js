@@ -1,3 +1,51 @@
+/* Atribuição de anúncio (gclid/gbraid/wbraid/UTM): guarda 90 dias e vai junto no formulário */
+(function(){
+  var K='mg_attr', KEYS=['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+  try{
+    var q=new URLSearchParams(location.search), novo={}, tem=false;
+    KEYS.forEach(function(k){ var v=q.get(k); if(v){ novo[k]=String(v).slice(0,300); tem=true; } });
+    if(tem){ novo.landing_url=location.href.slice(0,500); novo.ts=Date.now(); localStorage.setItem(K, JSON.stringify(novo)); }
+  }catch(_){}
+  /* Origem de TODA visita (Kevin 30-10-26): referrer + landing + canal padronizado, 1º e último toque, 90 dias */
+  try{
+    var KO='mg_origem', ref=document.referrer||'', host=location.hostname.replace(/^www\./,''), rh='';
+    try{ rh=ref?new URL(ref).hostname.replace(/^www\./,''):''; }catch(_){}
+    var interno = rh && rh===host;
+    if(!interno){
+      var q2=new URLSearchParams(location.search), us=(q2.get('utm_source')||'').toLowerCase(), um=(q2.get('utm_medium')||'').toLowerCase(), canal;
+      if(q2.get('gclid')||q2.get('gbraid')||q2.get('wbraid')) canal='google ads';
+      else if(us==='gbp'||us.indexOf('google business')>-1||us==='gmb') canal='gbp';
+      else if(us) canal=us+(um?' / '+um:'');
+      else if(/(^|\.)google\./.test(rh)) canal='google organico';
+      else if(/(^|\.)bing\.com$|duckduckgo|yahoo\./.test(rh)) canal=rh.split('.')[0]+' organico';
+      else if(/facebook|instagram|fb\.com|linkedin|tiktok|pinterest|youtube|nextdoor/.test(rh)) canal='social ('+rh+')';
+      else if(rh) canal='referencia ('+rh+')';
+      else canal='direto';
+      var p=location.pathname, tipo = p==='/'?'home':(/-lp\//.test(p)?'lp anuncio':(/-ma\/|massachusetts/.test(p)?'pagina seo':(/^\/blog\//.test(p)?'blog':'site')));
+      var toque={canal:canal, referrer:ref.slice(0,300), landing:location.href.slice(0,500), tipo:tipo, ts:Date.now()};
+      var o=JSON.parse(localStorage.getItem(KO)||'{}');
+      if(!o.first || Date.now()-o.first.ts>90*864e5) o.first=toque;
+      o.last=toque; localStorage.setItem(KO, JSON.stringify(o));
+    }
+  }catch(_){}
+  window.mgOrigemAppend=function(fd){
+    try{
+      var o=JSON.parse(localStorage.getItem('mg_origem')||'{}'), f=o.first||{}, l=o.last||f;
+      var put=function(k,v){ if(v && !fd.get(k)) fd.append(k, v); };
+      put('origem', f.canal); put('origem_ultimo', l.canal); put('referrer', f.referrer);
+      put('first_landing', f.landing); put('landing_tipo', f.tipo); put('form_page', location.href.slice(0,500));
+    }catch(_){}
+  };
+  window.mgAttrAppend=function(fd){
+    if(window.mgOrigemAppend) window.mgOrigemAppend(fd);
+    try{
+      var a=JSON.parse(localStorage.getItem(K)||'{}');
+      if(a.ts && Date.now()-a.ts>90*864e5){ localStorage.removeItem(K); return; }
+      KEYS.concat(['landing_url']).forEach(function(k){ if(a[k] && !fd.get(k)) fd.append(k, a[k]); });
+    }catch(_){}
+  };
+})();
+
 /* Innov Builders — interações */
 (function(){
   "use strict";
@@ -5,7 +53,7 @@
   // Resolve caminhos absolutos ("/assets/..") de dados JSON para a base real onde o
   // site esta montado (raiz OU subpath do GitHub Pages), derivada do proprio <script>.
   function fixAssetPaths(root){
-    var s = document.querySelector('script[src*="/assets/js/"]'), base = '/';
+    var s = document.querySelector('script[src*="/wb-innov-builders/assets/js/"]'), base = '/';
     if(s){ var i = s.src.indexOf('/assets/'); if(i>=0) base = s.src.slice(0, i+1); }
     function walk(o){
       if(typeof o === 'string'){ return o.indexOf('/assets/')===0 ? base + o.slice(1) : o; }
@@ -129,7 +177,7 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div></div>'+
       '<div class="lb-stage">'+
       '<button class="lb-nav lb-prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>'+
-      '<img class="lb-img" alt="">'+
+      '<span class="lb-pic"><img class="lb-img" alt=""></span>'+
       '<video class="lb-video" controls playsinline preload="metadata" style="display:none"></video>'+
       '<button class="lb-nav lb-next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>'+
       '</div><div class="lb-thumbs"></div>';
@@ -245,7 +293,7 @@
       var img = item.querySelector('img'); if(!img) return;
       var photos = (GAL[item.dataset.gallery] || {}).photos;
       if(!photos || photos.length < 2) return;
-      var orig = img.getAttribute('src'), timer = null, preloaded = false;
+      var orig = img.getAttribute('data-lzsrc') || img.getAttribute('src'), timer = null, preloaded = false;
       var i = parseInt(item.dataset.index || '0', 10) || 0;
       item.addEventListener('mouseenter', function(){
         // so troca os projetos no hover quando estiver em "All Projects";
@@ -257,7 +305,7 @@
         timer = setInterval(function(){
           i = (i + 1) % photos.length;
           img.style.opacity = '0';
-          setTimeout(function(){ img.src = photos[i].src; img.style.opacity = '1'; }, 260);
+          setTimeout(function(){ img.removeAttribute('srcset'); img.src = photos[i].src; img.style.opacity = '1'; }, 260);
         }, 2000);
       });
       item.addEventListener('mouseleave', function(){
@@ -337,9 +385,10 @@
       }
       var fd = new FormData(form);
       fd.append('page', location.href);
+      if(window.mgAttrAppend) window.mgAttrAppend(fd);
       fetch('/api/lead.php', { method:'POST', body: fd })
         .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
-        .then(function(res){ if(res && res.ok){ showDone(); } else { fail(); } })
+        .then(function(res){ if(res && res.ok){ mgLeadConv(fd); showDone(); } else { fail(); } })
         .catch(fail);
     });
     form.stepReset = function(){
@@ -351,6 +400,17 @@
     show(0);
   });
 })();
+
+/* G01 (02-11-26): conversão "New Lead - Website" no Google Ads. O GTM-TRDGGCQS dispara a tag
+   AW-16940335819/eZ0lCKeez_cbEMuF5I0_ no evento lead_conversion; user_email/user_phone alimentam as
+   conversões otimizadas. Só dispara depois que o /api/lead.php confirmou o lead (1x por envio). */
+function mgLeadConv(fd){
+  try{
+    var g=function(k){ var v=fd && fd.get ? fd.get(k) : ''; return v ? String(v).trim() : ''; };
+    var ph=g('phone').replace(/[^0-9+]/g,''); if(ph && ph.charAt(0)!=='+'){ ph=(ph.length===10?'+1':'+')+ph; }
+    (window.dataLayer=window.dataLayer||[]).push({event:'lead_conversion', lead_source:'site_form', user_email:g('email').toLowerCase(), user_phone:ph, value:1, currency:'USD'});
+  }catch(_){}
+}
 
 /* Free Estimate modal — any .btn linking to /contacts/ opens the quote popup */
 (function(){
@@ -496,6 +556,12 @@
     var v = w.querySelector('.mgvid-el'), b = w.querySelector('.mgvid-sound');
     if(!v || !b) return;
     v.muted = true;
+    // Poster so perto da tela: abaixo da dobra ele nao disputa banda com o LCP do hero
+    function ensurePoster(){ if(v.dataset.poster){ v.poster = v.dataset.poster; v.removeAttribute('data-poster'); } }
+    if('IntersectionObserver' in window){
+      var iop = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ ensurePoster(); iop.disconnect(); } }); }, {rootMargin:'900px'});
+      iop.observe(v);
+    } else { ensurePoster(); }
     // Lazy: only fetch the video when it scrolls into view — a big autoplay download must not block page navigation
     function ensureSrc(){ if(!v.dataset.loaded && v.getAttribute('data-src')){ v.src = v.getAttribute('data-src'); v.dataset.loaded = '1'; } }
     function loadAndPlay(){ ensureSrc(); var pr = v.play(); if(pr && pr.catch) pr.catch(function(){}); }
@@ -551,6 +617,7 @@
         if(getComputedStyle(v).display === 'none') return;
         var s = v.querySelector('source[data-src]');
         if(s && !v.dataset.loaded){
+          v.addEventListener('playing', function(){ var hm = v.closest('.hero-media'); if(hm) hm.classList.add('is-playing'); }, {once:true});
           s.src = s.getAttribute('data-src');
           v.dataset.loaded = '1';
           try{ v.load(); }catch(e){}

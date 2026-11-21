@@ -10,7 +10,7 @@
   // Resolve caminhos absolutos ("/assets/..") do JSON para a base real onde o site
   // esta montado (raiz OU subpath do GitHub Pages), derivada do proprio <script>.
   function fixAssetPaths(root){
-    var s = document.querySelector('script[src*="/assets/js/"]'), base = '/';
+    var s = document.querySelector('script[src*="/wb-innov-builders/assets/js/"]'), base = '/';
     if(s){ var i = s.src.indexOf('/assets/'); if(i>=0) base = s.src.slice(0, i+1); }
     function walk(o){
       if(typeof o === 'string'){ return o.indexOf('/assets/')===0 ? base + o.slice(1) : o; }
@@ -78,7 +78,7 @@
   lb.innerHTML =
     '<button class="pf2-lb-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
     '<button class="pf2-lb-nav pf2-lb-prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>' +
-    '<img class="pf2-lb-img" alt="">' +
+    '<span class="pf2-lb-stage"><img class="pf2-lb-img" alt=""></span>' +
     '<video class="pf2-lb-video" controls playsinline preload="metadata" style="display:none"></video>' +
     '<button class="pf2-lb-nav pf2-lb-next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>' +
     '<div class="pf2-lb-counter"></div>';
@@ -166,7 +166,7 @@
       .concat(regions.map(function (r) { return '<button class="pf2-chip" data-region="' + esc(r) + '">' + esc(r) + '</button>'; })).join('');
     var grid = c.projects.map(function (p) {
       var kind = p.kind === 'process'
-        ? '<span class="pf2-kind proc">Before · During · After</span>'
+        ? '<span class="pf2-kind proc">' + p.stages.filter(function (s) { return s.photos && s.photos.length; }).map(function (s) { return esc(s.label || s.key); }).join(' · ') + '</span>'
         : '<span class="pf2-kind">Finished result</span>';
       return '<a class="pf2-proj" data-region="' + esc(p.city) + '" href="#/s/' + c.slug + '/p/' + p.slug + '">' +
         '<div class="pf2-proj-media"><img src="' + esc(p.cover) + '" loading="lazy" alt="' + esc(p.name) + ' in ' + esc(p.city) + '">' +
@@ -245,8 +245,8 @@
           '<div class="pf2-step-body"><div class="pf2-step-label">' + esc(s.label) + '</div>' +
           '<p>' + esc(s.text) + '</p><div class="pf2-shots">' + shots + '</div></div></div>';
       }).join('');
-      body = '<div class="pf2-timeline"><div class="pf2-timeline-head"><span class="pf2-step-tag">The process</span>' +
-        '<h3>From first measurement to finished result</h3></div>' + stepsHtml + '</div>' +
+      body = (steps.length ? '<div class="pf2-timeline"><div class="pf2-timeline-head"><span class="pf2-step-tag">The process</span>' +
+        '<h3>From first measurement to finished result</h3></div>' + stepsHtml + '</div>' : '') +
         resultBlock(withVideo(after.photos), after.text);
     } else {
       body = resultBlock(withVideo(p.final.photos), p.final.text);
@@ -284,6 +284,23 @@
   function render() {
     var h = location.hash.replace(/^#\/?/, '');
     var parts = h.split('/').filter(Boolean); // ['s', catSlug, 'p', projSlug]
+    // links antigos de projetos renomeados/unificados (04-11-26)
+    var ALIAS = {
+      'built-in-under-stair-hallway-ma': ['built-ins', 'built-in-under-stair-brookline-ma'],
+      '131-andover-st-andover-ma-deck-sunroom-addition': ['full-renovation', 'deck-sunroom-addition-andover-ma'],
+      'sunroom-addition-andover-ma': ['full-renovation', 'deck-sunroom-addition-andover-ma'],
+      'floor-renovation-18-bay-state-ave-somerville-ma-code-1917': ['flooring', ''],
+      'pintura-20-rollins-ave-nahant-ma-lauren-fabbrucci': ['painting', 'painting-nahant-ma'],
+      'medford-ma-pivot-door-installation-preparar-conteudo': ['doors', 'pivot-door-medford-ma'],
+      'banheiro-655-cross-st-malden-ma': ['bathroom', 'bathroom-remodeling-malden-ma'],
+      'revere-floor-reel-viral': ['flooring', 'flooring-revere-ma'],
+      '447-marlborough-st-boston-ma-02115-stair-remodeling-reels': ['stair-remodeling', '447-marlborough-st-boston-ma-02115-stair-remodeling']
+    };
+    if (parts[0] === 's' && parts[2] === 'p' && ALIAS[parts[3]]) {
+      var al = ALIAS[parts[3]];
+      location.replace('#/s/' + al[0] + (al[1] ? '/p/' + al[1] : ''));
+      return;
+    }
     if (parts[0] === 's' && parts[1]) {
       if (parts[2] === 'p' && parts[3]) viewProject(parts[1], parts[3]);
       else viewCategory(parts[1]);

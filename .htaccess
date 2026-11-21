@@ -32,7 +32,7 @@ RedirectMatch 301 ^/category/blog/?$ /blog/
 RedirectMatch 301 ^/category/portfolio/?$ /portfolio/
 RedirectMatch 301 ^/commercial-room-remodeling-malden-ma/?$ /full-service-renovation/
 RedirectMatch 301 ^/deck-construction-nashua-nh/?$ /deck-porch/
-RedirectMatch 301 ^/deck-construction-reading-ma/?$ /deck-porch/
+RedirectMatch 301 ^/deck-construction-reading-ma/?$ /deck-builders-reading-ma/
 RedirectMatch 301 ^/deck-meta-18-08/?$ /
 RedirectMatch 301 ^/deck-remodeling/?$ /deck-porch/
 RedirectMatch 301 ^/deck-remodeling-ads/?$ /

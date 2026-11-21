@@ -50,6 +50,7 @@ if (strpos($name, ' ') !== false) { $p = explode(' ', $name, 2); $first = trim($
 $tags = ['Website Lead'];
 if ($service !== '') $tags[] = 'Service: '.$service;
 if ($source !== '')  $tags[] = 'Source: '.$source;
+if (stripos($source, 'google lp') !== false) $tags[] = 'google-lp'; // reserva das LPs Google: dispara o workflow 'LP Google Ads - Novo Lead'
 
 // resumo com TUDO que a pessoa preencheu -> vai pro campo "Brief Description of the Project"
 $brief = "";
@@ -77,6 +78,52 @@ foreach (['firstName','lastName','name','email','phone','postalCode'] as $k) {
 }
 if ($GHL_CF_BRIEF_CONTACT !== '') {
   $contact['customFields'] = [['id'=>$GHL_CF_BRIEF_CONTACT, 'value'=>$brief]];
+}
+
+// atribuicao de anuncio (gclid/gbraid/wbraid/UTM) -> campos do contato, pro envio CRM -> Google Ads.
+// IDs de campo nao sao segredo; gbraid/wbraid podem vir do config.php ($GHL_CF_GBRAID/$GHL_CF_WBRAID).
+$ATTR_CF = [
+  'gclid'        => '8kQHqkL9Ct8oQ2LNzL0e',
+  'gbraid'       => isset($GHL_CF_GBRAID) ? $GHL_CF_GBRAID : (getenv('GHL_CF_GBRAID') ?: '__CF_GBRAID__'),
+  'wbraid'       => isset($GHL_CF_WBRAID) ? $GHL_CF_WBRAID : (getenv('GHL_CF_WBRAID') ?: '__CF_WBRAID__'),
+  'utm_source'   => 'C1rYZ0Ls2gnLix6pxodr',
+  'utm_medium'   => 'sHss9hAI4B565oILvEhG',
+  'utm_campaign' => 'E3TT5sG9JpSumnUvHHvU',
+  'utm_term'     => '4YTwDnIsYNo2xCQCnznL',
+  'utm_content'  => 'qwvtLusU3lv5uh93kVpe',
+];
+$attr_note = '';
+foreach ($ATTR_CF as $k => $fid) {
+  $v = substr(trim((string)($in[$k] ?? '')), 0, 300);
+  if ($v === '') continue;
+  $attr_note .= "$k: $v\n";
+  if ($fid === '' || strpos($fid, '__') === 0) continue;
+  if (!isset($contact['customFields'])) $contact['customFields'] = [];
+  $contact['customFields'][] = ['id'=>$fid, 'value'=>$v];
+}
+if ($attr_note !== '') {
+  $brief .= "\n" . trim($attr_note);
+  $lp = trim((string)($in['landing_url'] ?? ''));
+  if ($lp !== '') $brief .= "\nLanding: " . substr($lp, 0, 500);
+  if ($GHL_CF_BRIEF_CONTACT !== '') $contact['customFields'][0]['value'] = $brief;
+}
+
+// origem de TODA visita (Kevin 30-10-26): vai no resumo do contato (Brief) e numa nota; NÃO sobrescreve o source.
+// Pra gravar em campo próprio do GHL, preencher $ORIGEM_CF com o ID do campo (Sarah).
+$ORIGEM_CF = isset($GHL_CF_ORIGEM) ? $GHL_CF_ORIGEM : (getenv('GHL_CF_ORIGEM') ?: '');
+$orig = [];
+foreach (['origem'=>'Origem (1a visita)','origem_ultimo'=>'Origem (ultima visita)','referrer'=>'Referrer','first_landing'=>'Primeira pagina','landing_tipo'=>'Tipo da primeira pagina','form_page'=>'Pagina do formulario'] as $k => $lab) {
+  $v = substr(trim((string)($in[$k] ?? '')), 0, 500);
+  if ($v !== '') $orig[] = "$lab: $v";
+}
+if ($orig) {
+  $brief .= "\n" . implode("\n", $orig);
+  if ($GHL_CF_BRIEF_CONTACT !== '' && isset($contact['customFields'][0])) $contact['customFields'][0]['value'] = $brief;
+  $ov = substr(trim((string)($in['origem'] ?? '')), 0, 120);
+  if ($ORIGEM_CF !== '' && $ov !== '') {
+    if (!isset($contact['customFields'])) $contact['customFields'] = [];
+    $contact['customFields'][] = ['id'=>$ORIGEM_CF, 'value'=>$ov];
+  }
 }
 
 function ghl_call($url, $token, $body) {
